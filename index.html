@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Interface para a API Biblioteca" />
+        <title>Biblioteca API</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <header class="topbar">
+            <a
+                class="brand"
+                href="#acervo"
+                aria-label="Biblioteca API - início"
+            >
+                <span class="brand-mark" aria-hidden="true"
+                    ><i></i><i></i><i></i
+                ></span>
+                <span
+                    ><strong>Biblioteca API</strong
+                    ><small>FLASK · REST</small></span
+                >
+            </a>
+            <nav aria-label="Navegação principal">
+                <a class="nav-link" href="#acervo" data-view="acervo"
+                    >Acervo <small>GET /livros</small></a
+                >
+                <a class="nav-link" href="#cadastrar" data-view="cadastrar"
+                    >Cadastrar <small>POST /livros</small></a
+                >
+                <a class="nav-link" href="#pesquisar" data-view="pesquisar"
+                    >Pesquisar <small>GET /livros/:id</small></a
+                >
+            </nav>
+        </header>
+
+        <main class="page-wrap">
+            <section class="view" id="acervo" data-view-panel="acervo">
+                <div class="heading-row">
+                    <div>
+                        <h1>Acervo Completo</h1>
+                        <p><span id="book-count">0</span> livros cadastrados</p>
+                    </div>
+                    <button
+                        class="button secondary"
+                        id="refresh-button"
+                        type="button"
+                    >
+                        ↻ Atualizar
+                    </button>
+                </div>
+                <div
+                    id="library-list"
+                    class="library-list"
+                    aria-live="polite"
+                ></div>
+            </section>
+
+            <section
+                class="view"
+                id="cadastrar"
+                data-view-panel="cadastrar"
+                hidden
+            >
+                <h1>Cadastrar Livro</h1>
+                <p class="endpoint">
+                    POST /livros · Content-Type: application/json
+                </p>
+                <form id="book-form" class="book-form">
+                    <label
+                        >Título *<input
+                            name="titulo"
+                            required
+                            placeholder="Ex: Dom Casmurro"
+                            maxlength="100"
+                    /> </label>
+                    <label
+                        >Autor *<input
+                            name="autor"
+                            required
+                            placeholder="Ex: Machado de Assis"
+                            maxlength="100"
+                    /></label>
+                    <label
+                        >Gênero *
+                        <select name="genero" required>
+                            <option value="" selected disabled>
+                                Selecione um gênero...
+                            </option>
+                            <option>Ficção Científica</option>
+                            <option>Fantasia</option>
+                            <option>Romance</option>
+                            <option>Terror</option>
+                            <option>Thriller</option>
+                            <option>Mistério</option>
+                            <option>Aventura</option>
+                            <option>Drama</option>
+                            <option>Conto</option>
+                            <option>Poesia</option>
+                            <option>Biografia</option>
+                            <option>Autobiografia</option>
+                            <option>História</option>
+                            <option>Filosofia</option>
+                            <option>Ciências</option>
+                            <option>Tecnologia</option>
+                            <option>Autoajuda</option>
+                            <option>Infantil</option>
+                            <option>Juvenil</option>
+                        </select>
+                    </label>
+                    <div class="actions">
+                        <button class="button primary" type="submit">
+                            + Cadastrar Livro</button
+                        ><button class="button secondary" type="reset">
+                            Limpar
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section
+                class="view"
+                id="pesquisar"
+                data-view-panel="pesquisar"
+                hidden
+            >
+                <h1>Pesquisar</h1>
+                <p class="endpoint">
+                    GET /livros · filtros por ID, título, autor ou gênero
+                </p>
+                <form id="search-form" class="search-form">
+                    <label class="sr-only" for="search-type"
+                        >Campo para pesquisa</label
+                    >
+                    <select id="search-type" aria-label="Campo para pesquisa">
+                        <option value="all">Todos os campos</option>
+                        <option value="id">ID</option>
+                        <option value="titulo">Título</option>
+                        <option value="autor">Autor</option>
+                        <option value="genero">Gênero</option>
+                    </select>
+                    <label class="sr-only" for="search-term"
+                        >Termo da pesquisa</label
+                    >
+                    <input
+                        id="search-term"
+                        required
+                        placeholder="Digite título, autor, gênero ou ID"
+                    />
+                    <button class="button primary" type="submit">Buscar</button>
+                </form>
+                <p class="hint">
+                    ↑ Escolha um campo ou pesquise em todos os dados do acervo
+                </p>
+                <div
+                    id="search-result"
+                    class="search-result"
+                    aria-live="polite"
+                ></div>
+            </section>
+        </main>
+
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+        <div
+            id="delete-modal"
+            class="modal-backdrop"
+            role="presentation"
+            hidden
+        >
+            <section
+                class="modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title"
+                aria-describedby="modal-message"
+            >
+                <p class="modal-eyebrow">DELETE /livros/:id</p>
+                <h2 id="modal-title">Excluir livro?</h2>
+                <p id="modal-message">
+                    Esta ação removerá o livro do acervo permanentemente.
+                </p>
+                <div class="modal-actions">
+                    <button
+                        id="cancel-delete"
+                        class="button secondary"
+                        type="button"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        id="confirm-delete"
+                        class="button danger"
+                        type="button"
+                    >
+                        Excluir livro
+                    </button>
+                </div>
+            </section>
+        </div>
+        <footer>
+            <span class="method get">GET</span> /livros
+            <span class="method post">POST</span> /livros
+            <span class="method get">GET</span> /livros/:id
+            <span class="method delete">DELETE</span> /livros/:id
+        </footer>
+        <script src="app.js"></script>
+    </body>
+</html>
